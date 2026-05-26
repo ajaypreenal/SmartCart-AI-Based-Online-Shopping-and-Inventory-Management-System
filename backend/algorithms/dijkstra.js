@@ -1,21 +1,32 @@
 export const dijkstra = (graph, start) => {
   const distances = {};
   const previous = {};
-  const visited = new Set();
+  const unvisited = new Set();
 
   for (const node in graph) {
     distances[node] = Infinity;
     previous[node] = null;
+    unvisited.add(node);
   }
+  
+  if (!graph[start]) return { distances: {}, previous: {} };
+  
   distances[start] = 0;
 
-  while (Object.keys(distances).length) {
-    const current = Object.entries(distances)
-      .filter(([node]) => !visited.has(node))
-      .sort((a, b) => a[1] - b[1])[0]?.[0];
+  while (unvisited.size > 0) {
+    // Find the unvisited node with the smallest distance
+    let current = null;
+    let minDistance = Infinity;
+    for (const node of unvisited) {
+      if (distances[node] < minDistance) {
+        current = node;
+        minDistance = distances[node];
+      }
+    }
 
-    if (!current) break;
-    visited.add(current);
+    if (current === null) break; // All remaining unvisited nodes are unreachable
+
+    unvisited.delete(current);
 
     for (const neighbor of graph[current] || []) {
       const alt = distances[current] + neighbor.weight;
@@ -24,8 +35,7 @@ export const dijkstra = (graph, start) => {
         previous[neighbor.to] = current;
       }
     }
-
-    delete distances[current];
   }
+
   return { distances, previous };
 };

@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
-import { ShoppingCart, Moon, Sun } from "lucide-react";
+import { ShoppingCart, Moon, Sun, LogOut } from "lucide-react";
 import { useCart } from "../context/CartContext";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 
 export default function Header() {
   const { cart, setIsCartOpen } = useCart();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [dark, setDark] = useState(() => {
     return localStorage.getItem("theme") === "dark";
   });
@@ -18,6 +21,9 @@ export default function Header() {
       localStorage.setItem("theme", "light");
     }
   }, [dark]);
+
+  // Don't show header on login page
+  if (location.pathname === '/') return null;
 
   return (
     <header className="sticky top-0 z-40 w-full glass-panel border-b-0">
@@ -37,18 +43,43 @@ export default function Header() {
         </div>
         
         <nav className="hidden md:flex gap-6 font-medium text-text-muted dark:text-dark-text-muted">
-          <a href="#" className="hover:text-primary-600 dark:hover:text-primary-400 transition">Marketplace</a>
-          <a href="#" className="hover:text-primary-600 dark:hover:text-primary-400 transition">Categories</a>
-          <a href="#" className="hover:text-primary-600 dark:hover:text-primary-400 transition">DAA Analytics</a>
+          <NavLink 
+            to="/marketplace" 
+            className={({ isActive }) => `transition ${isActive ? 'text-primary-600 dark:text-primary-400 font-bold' : 'hover:text-primary-600 dark:hover:text-primary-400'}`}
+          >
+            Marketplace
+          </NavLink>
+          <NavLink 
+            to="/categories" 
+            className={({ isActive }) => `transition ${isActive ? 'text-primary-600 dark:text-primary-400 font-bold' : 'hover:text-primary-600 dark:hover:text-primary-400'}`}
+          >
+            Categories
+          </NavLink>
+          <NavLink 
+            to="/analytics" 
+            className={({ isActive }) => `transition ${isActive ? 'text-primary-600 dark:text-primary-400 font-bold' : 'hover:text-primary-600 dark:hover:text-primary-400'}`}
+          >
+            DAA Analytics
+          </NavLink>
         </nav>
 
-        <button
-          onClick={() => setDark(!dark)}
-          className="p-2 rounded-full hover:bg-primary-100 dark:hover:bg-dark-surface transition"
-          aria-label="Toggle dark mode"
-        >
-          {dark ? <Sun className="w-5 h-5 text-accent-400" /> : <Moon className="w-5 h-5 text-primary-600" />}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setDark(!dark)}
+            className="p-2 rounded-full hover:bg-primary-100 dark:hover:bg-dark-surface transition"
+            aria-label="Toggle dark mode"
+          >
+            {dark ? <Sun className="w-5 h-5 text-accent-400" /> : <Moon className="w-5 h-5 text-primary-600" />}
+          </button>
+          
+          <button
+            onClick={() => navigate('/')}
+            className="p-2 rounded-full hover:bg-red-100 text-red-500 transition ml-2"
+            title="Logout"
+          >
+            <LogOut className="w-5 h-5" />
+          </button>
+        </div>
       </div>
     </header>
   );

@@ -33,7 +33,7 @@ export const getProducts = async (req, res) => {
     if (minPrice) filter.price = { ...filter.price, $gte: Number(minPrice) };
     if (maxPrice) filter.price = { ...filter.price, $lte: Number(maxPrice) };
 
-    let products = await Product.find(filter);
+    let products = await Product.find(filter).populate('category');
     if (search) {
       const linear = products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
       const sortedByName = [...products].sort((a, b) => a.name.localeCompare(b.name));
@@ -94,7 +94,7 @@ export const autocomplete = (req, res) => {
 export const budgetOptimiser = async (req, res) => {
   try {
     const { budget } = req.body;
-    const items = await Product.find({}, 'price rating _id');
+    const items = await Product.find({}, 'price rating _id name');
     const selectedIds = knapsack(
       items.map(p => ({
         price: p.price,
@@ -104,7 +104,14 @@ export const budgetOptimiser = async (req, res) => {
       budget
     );
     const selectedProducts = await Product.find({ _id: { $in: selectedIds } });
-    res.json(selectedProducts);
+    
+    // Calculate total cost
+    const totalCost = selectedProducts.reduce((sum, p) => sum + p.price, 0);
+
+    res.json({
+      selectedProducts,
+      totalCost
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: err.message });

@@ -15,12 +15,12 @@ const router = express.Router();
 
 router.get('/', getProducts);
 router.get('/autocomplete', autocomplete);
-router.post('/budget-optimiser', protect, budgetOptimiser);
+router.post('/budget-optimiser', budgetOptimiser);
 
 router.post('/', protect, adminOnly, createProduct);
 router.put('/:id', protect, adminOnly, updateProduct);
 router.delete('/:id', protect, adminOnly, deleteProduct);
-router.post('/route-optimisation', protect, adminOnly, routeOptimisation);
+router.post('/route-optimisation', routeOptimisation);
 
 router.get('/init-trie', protect, adminOnly, async (req, res) => {
   await initTrie();
